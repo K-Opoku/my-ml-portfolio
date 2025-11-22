@@ -1,16 +1,49 @@
 import Head from "next/head";
 import Link from "next/link";
-import { SITE_DATA } from "../lib/data";
-import { ChevronLeft, Calendar, Clock, Youtube, ImageIcon, ArrowUpRight } from "lucide-react";
+import { client } from "../src/sanity/client";
+import { postsQuery } from "../src/sanity/queries";
+import { ChevronLeft, Calendar, Clock, Youtube, ImageIcon } from "lucide-react";
 import { useState } from "react";
+import { PortableText } from "@portabletext/react";
+import imageUrlBuilder from '@sanity/image-url';
 
-export default function Blog() {
+// Helper to generate image URLs from Sanity data
+const builder = imageUrlBuilder(client);
+function urlFor(source) {
+  return builder.image(source);
+}
+
+// 🎨 RICH TEXT COMPONENTS CONFIGURATION
+// This tells the blog how to render specific Sanity content
+const RichTextComponents = {
+  types: {
+    image: ({ value }) => {
+      return (
+        <div className="my-8 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+          <img
+            src={urlFor(value).url()}
+            alt={value.alt || 'Blog Image'}
+            className="w-full h-auto object-cover"
+          />
+        </div>
+      );
+    },
+  },
+  block: {
+    h2: ({ children }) => <h2 className="text-2xl font-bold text-white mt-8 mb-4">{children}</h2>,
+    h3: ({ children }) => <h3 className="text-xl font-bold text-cyan-400 mt-6 mb-3">{children}</h3>,
+    normal: ({ children }) => <p className="text-gray-300 leading-relaxed mb-4">{children}</p>,
+    blockquote: ({ children }) => <blockquote className="border-l-4 border-indigo-500 pl-4 py-2 my-6 bg-white/5 italic text-gray-400">{children}</blockquote>,
+  },
+};
+
+export default function Blog({ posts }) {
   const [activePost, setActivePost] = useState(null);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-gray-200 font-sans selection:bg-indigo-500/30">
       <Head>
-        <title>Insights | {SITE_DATA.brand.name}</title>
+        <title>Insights | Engineering Log</title>
       </Head>
 
       <header className="fixed top-0 w-full z-50 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5">
@@ -31,30 +64,21 @@ export default function Blog() {
             <p className="text-gray-400 mb-12 text-lg">Video breakdowns, system diagrams, and engineering logs.</p>
             
             <div className="space-y-6">
-              {SITE_DATA.blog.map((post, i) => (
+              {posts && posts.length > 0 ? posts.map((post, i) => (
                 <article key={i} onClick={() => setActivePost(post)} className="group cursor-pointer">
                   <div className="p-6 rounded-2xl bg-[#111] border border-white/10 hover:border-indigo-500/50 transition duration-300 relative overflow-hidden">
-                    
-                    {/* Background Gradient for Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-
                     <div className="relative z-10">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4 text-xs text-indigo-400 font-mono">
-                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {post.date}</span>
-                          <span className="flex items-center gap-1"><Clock className="w-3 h-3"/> {post.readTime}</span>
+                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : "Recent"}</span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3"/> {post.readTime || "5 min"}</span>
                         </div>
                         
-                        {/* Icon Badge based on content type */}
-                        {post.videoId ? (
+                        {post.videoId && (
                           <span className="px-2 py-1 rounded bg-red-500/10 text-red-400 text-xs font-bold flex items-center gap-1 border border-red-500/20">
                             <Youtube className="w-3 h-3" /> Video
                           </span>
-                        ) : post.image ? (
-                          <span className="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-bold flex items-center gap-1 border border-blue-500/20">
-                            <ImageIcon className="w-3 h-3" /> Diagram
-                          </span>
-                        ) : null}
+                        )}
                       </div>
 
                       <h2 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition">{post.title}</h2>
@@ -62,7 +86,11 @@ export default function Blog() {
                     </div>
                   </div>
                 </article>
-              ))}
+              )) : (
+                <div className="text-center py-10 text-gray-500 border border-white/5 rounded-xl">
+                  No posts found. Go to <a href="/studio" className="text-indigo-400 underline">/studio</a> to publish one!
+                </div>
+              )}
             </div>
           </>
         ) : (
@@ -72,12 +100,11 @@ export default function Blog() {
               <ChevronLeft className="w-4 h-4" /> Back to list
             </button>
             
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">{activePost.tag}</span>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">{activePost.title}</h1>
             
             <div className="flex items-center gap-6 text-sm text-gray-500 mb-8 border-b border-white/10 pb-8">
-              <span className="flex items-center gap-2">By {SITE_DATA.brand.name}</span>
-              <span className="flex items-center gap-2">{activePost.date}</span>
+              <span className="flex items-center gap-2">{activePost.publishedAt ? new Date(activePost.publishedAt).toLocaleDateString() : "Recent"}</span>
+              <span className="flex items-center gap-2">{activePost.readTime}</span>
             </div>
 
             {/* 🎥 VIDEO PLAYER RENDERER */}
@@ -93,21 +120,9 @@ export default function Blog() {
               </div>
             )}
 
-            {/* 🖼️ DIAGRAM RENDERER */}
-            {activePost.image && (
-              <div className="mb-10">
-                <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-                  <img src={activePost.image} alt={activePost.title} className="w-full h-auto object-contain" />
-                </div>
-                <p className="text-center text-xs text-gray-500 mt-2 italic">Figure 1: {activePost.title}</p>
-              </div>
-            )}
-
-            {/* TEXT CONTENT */}
-            <div className="prose prose-invert prose-lg max-w-none text-gray-300">
-              <div className="whitespace-pre-line leading-relaxed">
-                {activePost.content}
-              </div>
+            {/* 📝 RICH TEXT CONTENT */}
+            <div className="prose prose-invert prose-lg max-w-none">
+              {activePost.content && <PortableText value={activePost.content} components={RichTextComponents} />}
             </div>
           </div>
         )}
@@ -115,4 +130,14 @@ export default function Blog() {
       </main>
     </div>
   );
+}
+
+// Fetch data from Sanity before page loads
+export async function getServerSideProps() {
+  const posts = await client.fetch(postsQuery);
+  return {
+    props: {
+      posts: posts || []
+    }
+  };
 }
