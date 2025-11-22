@@ -82,4 +82,5 @@ export default function ResumePage() {
       </main>
     </div>
   );
-}git add .
+}
+// Final fix for deployment
