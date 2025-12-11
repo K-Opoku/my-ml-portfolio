@@ -7,7 +7,29 @@ export const profileType = defineType({
   type: 'document',
   icon: UserIcon,
   fields: [
-    // 1. HERO SECTION
+    // 1. BRANDING (NEW SECTIONS)
+    defineField({
+      name: 'brandName',
+      title: 'Brand Name',
+      type: 'string',
+      initialValue: 'OpokuML',
+      description: 'The name displayed in the tab and header (e.g. OpokuML).',
+    }),
+    defineField({
+        name: 'logo',
+        title: 'Brand Logo',
+        type: 'image',
+        options: { hotspot: true },
+        description: 'Upload your circular OpokuML logo here.',
+    }),
+    defineField({
+        name: 'motto',
+        title: 'Brand Motto',
+        type: 'string',
+        description: 'e.g., "Data is the source, intelligence is the system."',
+    }),
+
+    // 2. HERO SECTION
     defineField({
         name: 'name',
         title: 'Full Name',
@@ -20,8 +42,9 @@ export const profileType = defineType({
     }),
     defineField({
         name: 'tagline',
-        title: 'Hero Tagline',
+        title: 'Hero Headline',
         type: 'string',
+        description: 'The big bold text (e.g., "I build scalable ML systems").',
     }),
     defineField({
         name: 'heroImage',
@@ -33,9 +56,10 @@ export const profileType = defineType({
         name: 'status',
         title: 'Work Status',
         type: 'string',
+        description: 'e.g. "Available for projects"',
     }),
 
-    // 2. METRICS
+    // 3. METRICS
     defineField({
         name: 'stats',
         title: 'Key Metrics',
@@ -49,7 +73,16 @@ export const profileType = defineType({
         }]
     }),
 
-    // 3. ABOUT / JOURNEY
+    // 4. TECH STACK (NEW FOR MARQUEE)
+    defineField({
+        name: 'techStack',
+        title: 'Tech Stack Logos',
+        description: 'List of technologies for the scrolling marquee (e.g. "Python", "AWS", "Docker").',
+        type: 'array',
+        of: [{type: 'string'}]
+    }),
+
+    // 5. ABOUT / JOURNEY
     defineField({
         name: 'bio',
         title: 'About Me (Bio)',
@@ -62,24 +95,30 @@ export const profileType = defineType({
         type: 'string',
     }),
 
-    // 4. RESUME HIGHLIGHTS
+    // 6. RESUME HIGHLIGHTS
     defineField({
         name: 'skills',
-        title: 'Top Technical Skills',
+        title: 'Top Technical Skills (List)',
         type: 'array',
         of: [{type: 'string'}]
     }),
     defineField({
         name: 'resumeUrl',
-        title: 'Resume PDF Link (Upload file to Sanity Media or external link)',
+        title: 'Resume PDF Link',
         type: 'url',
     }),
 
-    // 5. CONTACT LINKS
+    // 7. CONTACT LINKS
     defineField({
         name: 'email',
         title: 'Email Address',
         type: 'string',
+    }),
+    defineField({
+        name: 'whatsappNumber',
+        title: 'WhatsApp Number',
+        type: 'string',
+        description: 'Your number with country code, no spaces or + (e.g. 233501234567).',
     }),
     defineField({
         name: 'linkedin',

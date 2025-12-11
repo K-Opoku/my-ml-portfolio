@@ -13,6 +13,13 @@ export const projectType = defineType({
       type: 'string',
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: { source: 'title' },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
         name: 'status',
         title: 'Status',
         type: 'string',
@@ -31,9 +38,22 @@ export const projectType = defineType({
     }),
     defineField({
       name: 'summary',
-      title: 'Short Summary',
+      title: 'Short Summary (Card View)',
       type: 'text',
       rows: 3
+    }),
+    defineField({
+        name: 'description',
+        title: 'Full Description (Deep Dive)',
+        type: 'array',
+        of: [{type: 'block'}]
+    }),
+    defineField({
+        name: 'architectureDiagram',
+        title: 'System Architecture Diagram',
+        type: 'image',
+        description: 'Upload the flowchart/diagram showing how the system works.',
+        options: { hotspot: true }
     }),
     defineField({
         name: 'metrics',
@@ -55,6 +75,12 @@ export const projectType = defineType({
         name: 'demoLink',
         title: 'Live Demo URL',
         type: 'url',
+    }),
+    defineField({
+        name: 'mainImage',
+        title: 'Main Project Image',
+        type: 'image',
+        options: { hotspot: true }
     }),
   ],
 })
