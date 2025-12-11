@@ -1,41 +1,28 @@
-'use client';
-
 import { useState } from 'react';
 import { Mail, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState('idle'); // idle, loading, success, error
-  
-  // 🛡️ SECURITY STATE: This is the "Trap" variable
+  const [status, setStatus] = useState('idle');
   const [botCheck, setBotCheck] = useState(''); 
-
-  // 🎯 YOUR REAL KIT URL
-  const FORM_ACTION_URL = "https://app.kit.com/forms/8864506/subscriptions"; 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🛡️ SECURITY CHECK (Layer 2)
-    // If the invisible "botCheck" field has ANY text, it is a bot.
-    // We stop the function immediately.
     if (botCheck !== '') {
-      console.log("Bot detected. Blocking submission.");
       return; 
     }
 
     setStatus('loading');
 
     try {
-      const formData = new FormData();
-      formData.append("email_address", email);
-
-      const response = await fetch(FORM_ACTION_URL, {
+      // Points correctly to pages/api/subscribe.js
+      const response = await fetch('/api/subscribe', {
         method: 'POST',
-        body: formData,
         headers: {
-          'Accept': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
       });
 
       if (response.ok) {
@@ -52,8 +39,6 @@ export default function NewsletterForm() {
 
   return (
     <div className="relative overflow-hidden bg-slate-900/50 border border-indigo-500/20 p-8 rounded-3xl my-16 text-center backdrop-blur-sm">
-      
-      {/* Background Glow Effect */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10">
@@ -76,9 +61,6 @@ export default function NewsletterForm() {
           </div>
         ) : (
           <form className="max-w-md mx-auto flex flex-col sm:flex-row gap-3" onSubmit={handleSubmit}>
-            
-            {/* 🛡️ HONEYPOT FIELD (The Trap) */}
-            {/* This input is invisible to humans. If a bot fills it, we know it's spam. */}
             <input 
               type="text" 
               name="website_url" 
