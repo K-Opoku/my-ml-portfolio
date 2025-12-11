@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  // 1. Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -9,8 +10,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Email is required' });
   }
 
-  const API_KEY = process.env.NEXT_PUBLIC_CONVERTKIT_API_KEY;
-  const FORM_ID = process.env.NEXT_PUBLIC_CONVERTKIT_FORM_ID;
+  // 🟢 DIRECT FIX: Hardcoding your specific keys here.
+  // This bypasses Vercel settings completely.
+  const API_KEY = "L0GDS3QACHTOGccj5bXFnw";
+  const FORM_ID = "8864506";
+  
   const url = `https://api.convertkit.com/v3/forms/${FORM_ID}/subscribe`;
 
   try {
@@ -25,12 +29,15 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    // Log the error to the Vercel console if it fails
     if (!response.ok) {
-      return res.status(500).json({ error: data.message });
+      console.error("ConvertKit Error:", data);
+      return res.status(500).json({ error: data.message || "Failed to subscribe" });
     }
 
     return res.status(200).json({ success: true });
   } catch (error) {
+    console.error("Server Error:", error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
