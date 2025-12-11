@@ -1,19 +1,15 @@
 export const apiVersion =
-  process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01'
+  process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-02-23'
 
-export const dataset = assertValue(
-  process.env.NEXT_PUBLIC_SANITY_DATASET,
-  'Missing environment variable: NEXT_PUBLIC_SANITY_DATASET'
-)
+// 🟢 DIRECT FIX: We are putting the values here directly to stop the Vercel crash.
+// These are public values, so it is safe to have them in the code.
 
-export const projectId = assertValue(
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  'Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID'
-)
+export const dataset = "production";
 
-// 🌟 THIS IS WHAT WAS MISSING
-export const useCdn = false
+export const projectId = "7b9dagi7";
 
+// This helper function usually throws the error. 
+// We don't need it anymore because we hardcoded the values above.
 function assertValue(v, errorMessage) {
   if (v === undefined) {
     throw new Error(errorMessage)
